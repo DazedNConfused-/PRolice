@@ -1,0 +1,93 @@
+# ######################################################################################################################
+# ####################################### makefile script powered by cargo-make ########################################
+# ######################################################################################################################
+#
+# cargo install --force cargo-make
+#
+# See more: https://github.com/sagiegurari/cargo-make/blob/master/README.md#installation
+# ######################################################################################################################
+#
+# -----
+# Usage
+# -----
+#
+# cargo make --makefile cargo-makefile.toml release-all
+#
+# ######################################################################################################################
+#
+# ----------------
+# Additional Notes
+# ----------------
+#
+# - Cross-compilation requires docker. If not cross-compiling, you may save yourself several MBs worth of dependencies by
+#   just sticking to 'cargo build' for your host machine
+# - A complete 'release-all' from scratch is a VERY expensive operation. Expect it to take a while before every dependency
+#   is downloaded and cross-compiled successfully.
+#
+# ######################################################################################################################
+
+[tasks.clean-releases]
+description = "Clean previous releases (preserving compilation caches)"
+command = "rm"
+args = ["-r", "-f", "target/release/out"]
+
+# Linux release tasks ##################################################################################################
+
+[tasks.build-linux]
+description = "Build release binary for Linux"
+command = "cargo"
+args = ["build", "--release", "--target", "x86_64-unknown-linux-gnu"]
+dependencies = ["clean-releases"]
+
+[tasks.compress-build-linux]
+description = "Further compresses built Linux binaries using UPX"
+condition = { platforms = ["linux"] } # ultra-compression only available while building in Linux hosts
+command = "deps/upx-3.96-i386_linux/upx"
+args = ["--brute", "target/x86_64-unknown-linux-gnu/release/prolice"]
+dependencies = ["build-linux"]
+
+[tasks.release-linux]
+description = "Package built binary for Linux"
+script = '''
+mkdir -p target/release/out
+zip --junk-paths target/release/out/prolice_x86_64-unknown-linux-gnu.zip target/x86_64-unknown-linux-gnu/release/prolice
+'''
+dependencies = ["build-linux", "compress-build-linux"]
+
+# MacOS (Darwin) release tasks #########################################################################################
+
+[tasks.build-darwin]
+# MacOS cross-compilation uses a custom docker image with 'osxcross' configured
+# https://github.com/joseluisq/rust-linux-darwin-builder
+description = "Build release binary for MacOS (Darwin)"
+script = '''
+docker run --rm \
+    --volume "$(pwd)":/root/src \
+    --workdir /root/src \
+    joseluisq/rust-linux-darwin-builder:1.51.0 \
+    sh -c "CC=o64-clang CXX=o64-clang++ cargo build --release --target x86_64-apple-darwin"
+'''
+dependencies = ["clean-releases"]
+
+[tasks.compress-build-darwin]
+description = "Further compresses built MacOS (Darwin) binaries using UPX"
+condition = { platforms = ["linux"] } # ultra-compression only available while building in Linux hosts
+command = "deps/upx-3.96-i386_linux/upx"
+args = ["--brute", "target/x86_64-apple-darwin/release/prolice"]
+dependencies = ["build-darwin"]
+
+[tasks.release-darwin]
+description = "Package built binary for MacOS (Darwin)"
+script = '''
+mkdir -p target/release/out
+zip --junk-paths target/release/out/prolice_x86_64-apple-darwin.zip target/x86_64-apple-darwin/release/prolice
+'''
+dependencies = ["build-darwin", "compress-build-darwin"]
+
+# All targets release tasks ############################################################################################
+
+[tasks.release-all]
+dependencies = [
+    "release-linux",
+    "release-darwin"
+]

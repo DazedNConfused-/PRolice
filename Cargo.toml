@@ -1,0 +1,72 @@
+[package]
+edition = "2018"
+build = "build.rs"
+
+name = "prolice"
+version = "0.0.1"
+authors = ["Gonzalo Lopez <glopezvigliante@gmail.com>"]
+description = "An engineering-management tool for scrapping and measuring pull request data from GitHub repositories."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# custom PRolice macro(s) live inside lib
+[lib]
+name = "prpolice_lib"
+path = "lib/lib.rs"
+proc-macro = true
+
+
+[dependencies]
+# github's integration must-have dependencies ---
+octocrab = { version = "0.8", features = ["default", "stream"] }
+openssl = { version = "0.10", features = ["vendored"] }
+tokio = { version = "1.2.0", features = ["full"] }
+futures = "0.3.13"
+
+# staple dependencies ---
+log = "0.4.14" # global logging facade for Rust
+simplelog = "0.9.0" # simple logging implementation
+once_cell = "1.7.2" # useful for declaring (rational) 'static-lived singletons until std::sync::SyncLazy arrives in Rust - https://stackoverflow.com/a/27826181
+itertools = "0.10.0" # extra tooling for iterators
+regex = "1.4.5" # regex utils
+lazy_static = "1.4.0" # commonly-used macro for lazy initialization of variables. Supports the regex crate
+num = "0.4.0" # for math commodities (like 'ceil' in integer division)
+#derive_builder = "0.9.0" # unnecessary right now, but useful for autogenerating builder pattern(s) for structs
+
+# error extension support dependencies ---
+thiserror = "1.0.24" # convenient derive macro for the standard library's std::error::Error trait
+anyhow = "1.0.40" # trait object based error type for easy idiomatic error handling in Rust applications
+
+# JSON support dependencies ---
+serde =  { version = "1.0.124", features = ["derive"] } # de-facto serializing/deserializing lib
+serde_json = "1.0.64" # same, for JSONs
+
+# time support dependencies (for benchmarking purposes, among others) ---
+time = "0.2.25"
+chrono = "0.4.19"
+
+# custom-lib support dependencies (custom macros) ---
+proc-macro2 = "1.0.24"
+quote = "1.0.9"
+syn = { version = "1.0.57", features = ["full", "fold"] }
+
+# CLI support dependencies ---
+clap = "3.0.0-beta.2"
+console = "0.14.1"
+
+# enum support dependencies ---
+strum = "0.20" # extends an enum's functionality (allowing, for example, to retrieve an iterator over all of its potential values, among others)
+strum_macros = "0.20" # macros for strum
+
+# other supporting dependencies (ie: for github custom requests unsupported in octocrab) ---
+unidiff = "0.3.3" # necessary in order to parse PR's diffs (unsupported by octocrab)
+reqwest = { version = "0.11.2", features = ["json", "rustls"] } # necessary for manual REST calls
+deadpool = { version = "0.7.0", features = ["managed"] } # for managed pool connections - avoids incurring in rejected API requests due to abuse of limit rates
+async-trait = "0.1.48" # deadpool dependency
+
+[dev-dependencies]
+tokio-test = "0.4.1"
+mockall = "0.9.1"
+
+[build-dependencies]
+built = "0.4.4"

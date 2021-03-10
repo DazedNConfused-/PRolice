@@ -1,0 +1,7 @@
+# https://rust-lang.github.io/rustfmt/?version=v1.4.36&search=
+
+edition = "2018"
+
+use_small_heuristics = "Off"
+use_try_shorthand = true
+fn_args_layout = "Compressed"
