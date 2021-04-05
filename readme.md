@@ -10,6 +10,9 @@
 ```
 
 ---
+[![GitHub license](https://img.shields.io/github/license/DazedNConfused-/PRolice?style=flat-square)](https://github.com/DazedNConfused-/PRolice/blob/master/LICENSE)
+![GitHub Workflow Status (event)](https://img.shields.io/github/workflow/status/DazedNConfused-/PRolice/Continuous%20integration?style=flat-square)
+---
 
 # 🚨 Introduction
 
