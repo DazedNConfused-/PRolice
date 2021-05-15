@@ -13,6 +13,7 @@ use scoring::scorable::Scorable;
 use crate::github::client::pool::{GitHubConnectionPool, GitHubConnectionPoolManager};
 use crate::github::utils::analyzer::AnalyzerBuilder;
 use crate::github::utils::pull_request_data::PullRequestData;
+use crate::report::template::TemplateBuilder;
 use crate::scoring::score::{Score, ScoreType};
 
 #[path = "error.rs"]
@@ -24,6 +25,8 @@ mod prolice_metadata;
 mod github;
 
 mod scoring;
+
+mod report;
 
 // CLI params ---
 const GITHUB_TOKEN_PARAM: &str = "github-token";
@@ -187,9 +190,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let result_out = Term::stdout(); // result always ignores 'silent' flag
 
     if let Ok(pr_number) = selected_pr_number {
-        // https://github.com/warnerbrostv/Project-Brainiac-Java/pull/5486
         let pr_score: Score = analyzer
-            .retrieve_pr_data(pr_number) // 6909/6913 for attachments; 5486 for extensive commentary; 6854 for a REALLY LONG wip PR; 6830 for more deletions than additions
+            .retrieve_pr_data(pr_number)
             .await
             .unwrap_or_else(|e| {
                 error!("{}", e);
@@ -200,9 +202,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         print_metrics_legends(print_metric_legends, &result_out); // print metrics' legends, if flag allows for it
         result_out.write_line(&format!("{}", pr_score))?;
     } else {
-        let repo_score: Score = analyzer
-            .retrieve_repo_data(sample_size)
-            .await
+        let repo_data = analyzer.retrieve_repo_data(sample_size).await;
+
+        let repo_analysis: Vec<&PullRequestData> = repo_data
             .iter()
             .filter_map(|pull_request_data_result| pull_request_data_result.as_ref().ok())
             .filter(|pull_request_data| {
@@ -218,11 +220,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 passes_filter
             })
-            .collect::<Vec<&PullRequestData>>()
-            .get_score();
+            .collect::<Vec<&PullRequestData>>();
 
+        // build report file (if flag allows for it) ---
+        if (true) {
+            // TODO put a flag in here!
+            let individual_prs_score: Vec<Score> =
+                repo_analysis.iter().map(|pr_data| pr_data.get_score()).collect::<Vec<Score>>();
+
+            let saved_file_path =
+                TemplateBuilder::from(individual_prs_score, repo_analysis.get_score())
+                    .build_to_temp_file()?;
+
+            open::that(saved_file_path.as_os_str());
+        }
+
+        // print metrics to stdout ---
         print_metrics_legends(print_metric_legends, &result_out); // print metrics' legends, if flag allows for it
-        result_out.write_line(&format!("{}", repo_score))?;
+        result_out.write_line(&format!("{}", repo_analysis.get_score()))?;
     }
 
     Ok(())

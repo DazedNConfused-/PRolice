@@ -59,6 +59,12 @@ pub enum AnalyzeError {
     },
     #[error("Repository initialization error = {0}")]
     RepositoryNotFoundError(String),
+    #[error("Report-template rendering error: {msg}; nested = {nested:#?}")]
+    TemplateRenderError {
+        msg: String,
+        #[source]
+        nested: anyhow::Error,
+    },
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }
