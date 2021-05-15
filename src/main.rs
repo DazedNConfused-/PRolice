@@ -25,6 +25,8 @@ mod github;
 
 mod scoring;
 
+mod report;
+
 // CLI params ---
 const GITHUB_TOKEN_PARAM: &str = "github-token";
 const LOG_LEVEL_PARAM: &str = "log-level";

@@ -58,6 +58,9 @@ console = "0.14.1"
 strum = "0.20" # extends an enum's functionality (allowing, for example, to retrieve an iterator over all of its potential values, among others)
 strum_macros = "0.20" # macros for strum
 
+# reporting support dependencies ---
+rust-embed = { version = "5.9.0", features = ["interpolate-folder-path"] } # so we can embed the report template inside the binary
+
 # other supporting dependencies (ie: for github custom requests unsupported in octocrab) ---
 unidiff = "0.3.3" # necessary in order to parse PR's diffs (unsupported by octocrab)
 reqwest = { version = "0.11.2", features = ["json", "rustls"] } # necessary for manual REST calls
