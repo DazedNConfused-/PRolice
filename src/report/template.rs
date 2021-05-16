@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 use std::env::temp_dir;
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsString;
 use std::fs::File;
 use std::include_str;
 use std::io::Write;
-use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use handlebars::Handlebars;
