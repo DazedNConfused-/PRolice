@@ -1,1 +1,24 @@
-{{{ data }}}
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- https://stackoverflow.com/a/9320664 -->
+    <script type="application/json" id="data">
+        {{{ data }}}
+    </script>
+    <script type="application/javascript">
+        let stuff = JSON.parse(document.getElementById('data').innerHTML);
+
+        function myFunction() {
+            document.getElementById("demo").innerHTML = "Paragraph changed.";
+            console.log(stuff);
+        }
+    </script>
+</head>
+<body>
+
+<h1>A Web Page</h1>
+<p id="demo">A Paragraph</p>
+<button type="button" onclick="myFunction()">Try it</button>
+
+</body>
+</html>
