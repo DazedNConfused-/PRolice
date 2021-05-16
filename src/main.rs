@@ -232,7 +232,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 TemplateBuilder::from(individual_prs_score, repo_analysis.get_score())
                     .build_to_temp_file()?;
 
-            open::that(saved_file_path.as_os_str());
+            open::that(saved_file_path);
         }
 
         // print metrics to stdout ---

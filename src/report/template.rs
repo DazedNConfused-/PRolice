@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::env::temp_dir;
+use std::ffi::{OsStr, OsString};
 use std::fs::File;
 use std::include_str;
 use std::io::Write;
@@ -79,7 +80,7 @@ impl TemplateBuilder {
     }
 
     /// Builds the report's HTML and saves it in a temporary folder.
-    pub fn build_to_temp_file(&self) -> Result<PathBuf, AnalyzeError> {
+    pub fn build_to_temp_file(&self) -> Result<OsString, AnalyzeError> {
         // first of all, render the output template ---
         let output_template = &self.build()?;
 
@@ -95,13 +96,14 @@ impl TemplateBuilder {
         debug!("Report will be saved as [{}]", file_name);
         temp_dir.push(file_name);
 
-        let file_path = String::from(temp_dir.to_str().unwrap());
-        debug!("Saving report in [{}]...", file_path);
+        let file_path = temp_dir.as_os_str();
+        let file_path_str = file_path.to_str().unwrap(); // for logging purposes
+        debug!("Saving report in [{}]...", file_path.to_str().unwrap());
 
-        let mut file = File::create(temp_dir).map_err(|e| {
+        let mut file = File::create(file_path).map_err(|e| {
             trace!("Error = {:?}", e);
             AnalyzeError::TemplateRenderError {
-                msg: format!("Error saving report template in path [{}].", file_path),
+                msg: format!("Error saving report template in path [{}].", file_path_str),
                 nested: nested!(e),
             }
         })?;
@@ -109,13 +111,13 @@ impl TemplateBuilder {
         file.write_all(output_template.as_bytes()).map_err(|e| {
             trace!("Error = {:?}", e);
             AnalyzeError::TemplateRenderError {
-                msg: format!("Error writing into report file [{}].", file_path),
+                msg: format!("Error writing into report file [{}].", file_path_str),
                 nested: nested!(e),
             }
         })?;
 
         // if everything has gone correctly, return saved file path ---
-        Ok(PathBuf::from(file_path))
+        Ok(OsString::from(file_path))
     }
 
     /// Returns the current System's epoch time.
