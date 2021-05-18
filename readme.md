@@ -229,7 +229,7 @@ This metric is rendered somewhat obsolete if developers work on WIP branches bef
 
 # 🚨 Compiling PRolice using `cargo`
 
-**PRolice** is written in Rust. Compiling the application for usage in the host platform is as easy as using plain-old `cargo build`:
+**PRolice** is written in Rust. Compiling the application for usage in the host platform is as easy as using `cargo build`:
 
 ```bash
 cargo build --release
@@ -268,4 +268,4 @@ This would create and place, after the process is finished, the compressed binar
 `<your_dir>/target/release/out/prolice_x86_64-apple-darwin.zip`
 
 
-**Take into account**, however, that cross-compilation Linux-to-Darwin requires [Docker](https://www.docker.com/), so once again you may save yourself **several** MBs by sticking into building binaries for your host machine by just invoking plain old `cargo build`.
+**Take into account**, however, that cross-compilation Linux-to-Darwin requires [Docker](https://www.docker.com/), so once again you may save yourself **several** MBs by sticking into building binaries for your host machine by just invoking `cargo build`.
