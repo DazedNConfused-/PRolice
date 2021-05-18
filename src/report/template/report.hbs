@@ -23,11 +23,8 @@
         {{{ data }}}
     </script>
     <script type="application/javascript">
-        let stuff = JSON.parse(document.getElementById('data').innerHTML);
-
         function myFunction() {
-            document.getElementById("demo").innerHTML = "Paragraph changed.";
-            console.log(stuff);
+            console.log(getTestToCodeRatios());
         }
     </script>
 
@@ -35,49 +32,147 @@
 </head>
 <body>
 
-    <h1>A Web Page</h1>
+<h1>A Web Page</h1>
 
-    <div>
-        <p id="demo">A Paragraph</p>
-        <button type="button" onclick="myFunction()">Try it</button>
-    </div>
+<div>
+    <p id="demo">A Paragraph</p>
+    <button type="button" onclick="myFunction()">Try it</button>
+</div>
 
-    <div>
-        <canvas id="myChart"></canvas>
-    </div>
+<div id="testToCodeRatioDiv">
+    <canvas id="testToCodeRatioPlot"></canvas>
+</div>
 
-    <script>
-        const labels = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-        ];
-        const data = {
-            labels: labels,
-            datasets: [{
-                label: 'My First dataset',
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: [0, 10, 5, 2, 20, 30, 45],
-            }]
-        };
+<script type="application/javascript" id="utils">
+    /* ==================== */
+    /* PRolice Report Utils */
+    /* ==================== */
 
-        const config = {
-            type: 'line',
-            data,
-            options: {}
-        };
+    const COLORS = [
+        '#4dc9f6',
+        '#f67019',
+        '#f53794',
+        '#537bc4',
+        '#acc236',
+        '#166a8f',
+        '#00a950',
+        '#58595b',
+        '#8549ba'
+    ];
 
-        // === include 'setup' then 'config' above ===
+    const CHART_COLORS = {
+        red: 'rgb(255, 99, 132)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
+        green: 'rgb(75, 192, 192)',
+        blue: 'rgb(54, 162, 235)',
+        purple: 'rgb(153, 102, 255)',
+        grey: 'rgb(201, 203, 207)'
+    };
 
-        var myChart = new Chart(
-                document.getElementById('myChart'),
-                config
-        );
-    </script>
+    const NAMED_COLORS = [
+        CHART_COLORS.red,
+        CHART_COLORS.orange,
+        CHART_COLORS.yellow,
+        CHART_COLORS.green,
+        CHART_COLORS.blue,
+        CHART_COLORS.purple,
+        CHART_COLORS.grey,
+    ];
+
+    /**
+     * Returns the underlying analysis's results, as JSON.
+     * */
+    function getJsonData() {
+        return JSON.parse(document.getElementById('data').innerHTML);
+    }
+
+    /**
+     * Returns the underlying analysis's individual PRs' score.
+     * */
+    function getIndividualPRsScore() {
+        return getJsonData()['individual_prs_score'];
+    }
+
+    /**
+     * Returns the underlying analysis's global score.
+     * */
+    function getGlobalScore() {
+        return getJsonData()['global_score'];
+    }
+
+    /**
+     * Generates an array of labels for the underlying JSON data.
+     * */
+    function getLabelsForData() {
+        return Array.from(Array(getIndividualPRsScore().length).keys());
+    }
+</script>
+
+<script type="application/javascript" id="test-to-code-ratio">
+    /* Test-to-code-ratio Report */
+
+    function getTestToCodeRatios() {
+        // https://stackoverflow.com/a/55271350
+        return getIndividualPRsScore()
+                .flatMap(({ score }) => score.map(({ TestToCodeRatio }) => TestToCodeRatio))
+                .filter(element => element !== undefined);
+    }
+
+    const data = {
+        labels: getLabelsForData(),
+        datasets: [
+            {
+                label: 'Test-to-code Ratio',
+                fill: false,
+                backgroundColor: CHART_COLORS.green,
+                borderColor: CHART_COLORS.green,
+                borderDash: [5, 5],
+                data: getTestToCodeRatios(),
+                stepped: 'middle'
+            },
+        ]
+    };
+
+    const config = {
+        type: 'line',
+        data: data,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Test-to-code Ratio Report'
+                },
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'PR Number'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Ratio'
+                    }
+                }
+            }
+        },
+    };
+
+    let testToCodeRatioPlot = new Chart(
+            document.getElementById('testToCodeRatioPlot'),
+            config
+    );
+</script>
 
 </body>
 </html>
