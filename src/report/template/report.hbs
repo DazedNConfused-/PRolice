@@ -32,15 +32,33 @@
 </head>
 <body>
 
-<h1>A Web Page</h1>
+<h1>PRolice Report - </h1>
 
-<div>
+<div class="container-fluid">
     <p id="demo">A Paragraph</p>
-    <button type="button" onclick="myFunction()">Try it</button>
+    <button type="button" onclick="console.log(getTestToCodeTestLocs())">Try it</button>
 </div>
 
-<div id="testToCodeRatioDiv">
-    <canvas id="testToCodeRatioPlot"></canvas>
+<div id="testToCodeRatioDiv" class="container-fluid">
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="testToCodePlot"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="testToCodeRatioPlot"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script type="application/javascript" id="utils">
@@ -110,16 +128,93 @@
 </script>
 
 <script type="application/javascript" id="test-to-code-ratio">
+    /* ========================= */
     /* Test-to-code-ratio Report */
+    /* ========================= */
 
-    function getTestToCodeRatios() {
+    function getTestToCodeRatioObjects() {
         // https://stackoverflow.com/a/55271350
         return getIndividualPRsScore()
                 .flatMap(({ score }) => score.map(({ TestToCodeRatio }) => TestToCodeRatio))
                 .filter(element => element !== undefined);
     }
 
-    const data = {
+    function getTestToCodeLocs() {
+        return getTestToCodeRatioObjects().map(ttc =>  ttc['loc']);
+    }
+
+    function getTestToCodeTestLocs() {
+        return getTestToCodeRatioObjects().map(ttc =>  ttc['test_loc']);
+    }
+
+    function getTestToCodeRatios() {
+        return getTestToCodeRatioObjects().map(ttc =>  ttc['ratio']);
+    }
+
+    /* testToCodePlot */
+
+    const testToCodePlotData = {
+        labels: getLabelsForData(),
+        datasets: [
+            {
+                label: 'Lines of code',
+                fill: false,
+                backgroundColor: CHART_COLORS.blue,
+                borderColor: CHART_COLORS.blue,
+                data: getTestToCodeLocs(),
+            },
+            {
+                label: 'Test lines of code',
+                fill: true,
+                backgroundColor: CHART_COLORS.green,
+                borderColor: CHART_COLORS.green,
+                data: getTestToCodeTestLocs(),
+            },
+        ]
+    };
+
+    const testToCodePlotConfig = {
+        type: 'line',
+        data: testToCodePlotData,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Test-to-code Report'
+                },
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'PR Number'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Lines of code'
+                    }
+                }
+            }
+        },
+    };
+
+    let testToCodePlot = new Chart(
+            document.getElementById('testToCodePlot'),
+            testToCodePlotConfig
+    );
+
+    /* testToCodeRatioPlot */
+
+    const testToCodeRatioPlotData = {
         labels: getLabelsForData(),
         datasets: [
             {
@@ -134,9 +229,9 @@
         ]
     };
 
-    const config = {
+    const testToCodeRatioPlotConfig = {
         type: 'line',
-        data: data,
+        data: testToCodeRatioPlotData,
         options: {
             responsive: true,
             plugins: {
@@ -170,7 +265,7 @@
 
     let testToCodeRatioPlot = new Chart(
             document.getElementById('testToCodeRatioPlot'),
-            config
+            testToCodeRatioPlotConfig
     );
 </script>
 

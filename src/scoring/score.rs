@@ -17,7 +17,11 @@ pub enum ScoreType {
     PullRequestFlowRatio(f64),
     PullRequestLeadTime(u64),
     PullRequestSize(usize),
-    TestToCodeRatio(f64),
+    TestToCodeRatio {
+        loc: usize,
+        test_loc: usize,
+        ratio: f64,
+    },
     TimeToMerge(u64),
 }
 
@@ -84,7 +88,11 @@ impl ScoreType {
                 longer pull requests faster than shorter ones, for it is more difficult to perform thorough \
                 reviews when there are too many things going on. Regardless of how thorough the reviews \
                 are, big PRs lead to the Time To Merge going up, and the quality going down.",
-            ScoreType::TestToCodeRatio(_) =>
+            ScoreType::TestToCodeRatio{
+                loc: _loc,
+                test_loc: _test_loc,
+                ratio: _ratio,
+            }  =>
                 "As a rule of thumb, at least half of a PR should be comprised of tests whenever possible.",
             ScoreType::TimeToMerge(_) =>
                 "In general, pull requests are open with some work in progress, which means that measuring \

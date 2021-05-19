@@ -412,9 +412,15 @@ impl Scorable for PullRequestData {
                 ScoreType::PullRequestSize(_) => {
                     scorables.push(ScoreType::PullRequestSize(changes_added))
                 }
-                ScoreType::TestToCodeRatio(_) => {
-                    scorables.push(ScoreType::TestToCodeRatio(test_to_code_ratio))
-                }
+                ScoreType::TestToCodeRatio {
+                    loc: _loc,
+                    test_loc: _test_loc,
+                    ratio: _ratio,
+                } => scorables.push(ScoreType::TestToCodeRatio {
+                    loc: net_non_test_lines_added,
+                    test_loc: net_test_lines_added,
+                    ratio: test_to_code_ratio,
+                }),
                 ScoreType::TimeToMerge(_) => scorables.push(ScoreType::TimeToMerge(time_to_merge)),
             }
         }

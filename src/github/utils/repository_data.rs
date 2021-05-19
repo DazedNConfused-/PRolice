@@ -39,6 +39,8 @@ impl Scorable for Vec<&PullRequestData> {
         let mut total_pull_requests_discussion_size: usize = 0;
         let mut total_pull_request_lead_time: u64 = 0;
         let mut total_pull_request_size: usize = 0;
+        let mut total_test_lines_added: usize = 0;
+        let mut total_non_test_lines_added: usize = 0;
         let mut total_test_to_code_ratio: f64 = 0.0;
         let mut total_time_to_merge: u64 = 0;
 
@@ -103,12 +105,18 @@ impl Scorable for Vec<&PullRequestData> {
                         total_pull_request_size
                     )
                 }
-                ScoreType::TestToCodeRatio(ttcr) => {
-                    total_test_to_code_ratio += ttcr;
+                ScoreType::TestToCodeRatio {
+                    loc,
+                    test_loc,
+                    ratio,
+                } => {
+                    total_non_test_lines_added += loc;
+                    total_test_lines_added += test_loc;
+                    total_test_to_code_ratio += ratio;
                     trace!(
-                        "Adding {} test-to-code-ratio to count. Total count so far = {}",
-                        ttcr,
-                        total_test_to_code_ratio
+                        "Adding {}/{}/{} loc/test loc/test-to-code-ratio to count. Total count so far = {}/{}/{}",
+                        loc, test_loc, ratio,
+                        total_non_test_lines_added, total_test_lines_added, total_test_to_code_ratio
                     )
                 }
                 ScoreType::TimeToMerge(ttm) => {
@@ -166,9 +174,15 @@ impl Scorable for Vec<&PullRequestData> {
                 ScoreType::PullRequestSize(_) => scorables.push(ScoreType::PullRequestSize(
                     integer::div_ceil(total_pull_request_size, total_amount_of_prs as usize),
                 )),
-                ScoreType::TestToCodeRatio(_) => scorables.push(ScoreType::TestToCodeRatio(
-                    total_test_to_code_ratio / (total_amount_of_prs as f64),
-                )),
+                ScoreType::TestToCodeRatio {
+                    loc: _loc,
+                    test_loc: _test_loc,
+                    ratio: _ratio,
+                } => scorables.push(ScoreType::TestToCodeRatio {
+                    loc: total_test_lines_added / (total_amount_of_prs as usize),
+                    test_loc: total_non_test_lines_added / (total_amount_of_prs as usize),
+                    ratio: total_test_to_code_ratio / (total_amount_of_prs as f64),
+                }),
                 ScoreType::TimeToMerge(_) => scorables.push(ScoreType::TimeToMerge(
                     integer::div_ceil(total_time_to_merge, total_amount_of_prs),
                 )),
