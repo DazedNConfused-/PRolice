@@ -127,7 +127,7 @@
      * Generates an array of labels for the underlying JSON data.
      * */
     function getLabelsForData() {
-        return Array.from(Array(getIndividualPRsScore().length).keys());
+        return Array.from(getIndividualPRsScore().map(prScore => prScore["pr_number"]));
     }
 </script>
 

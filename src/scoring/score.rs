@@ -159,7 +159,10 @@ impl Score {
             score,
         }
     }
-
+    pub fn pr_number(&self) -> Option<u64> {
+        self.pr_number
+    }
+    
     pub fn score(self) -> Vec<ScoreType> {
         self.score
     }

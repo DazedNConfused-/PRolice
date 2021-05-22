@@ -225,8 +225,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // build report file (if flag allows for it) ---
         if (true) {
             // TODO put a flag in here!
-            let individual_prs_score: Vec<Score> =
+            let mut individual_prs_score: Vec<Score> =
                 repo_analysis.iter().map(|pr_data| pr_data.get_score()).collect::<Vec<Score>>();
+
+            individual_prs_score.sort_by_key(|k| k.pr_number()); // it's better for the report's presentation if underlying JSON is already sorted
 
             let saved_file_path = TemplateBuilder::from(
                 owner,
