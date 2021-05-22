@@ -425,7 +425,7 @@ impl Scorable for PullRequestData {
             }
         }
 
-        Score::new(scorables)
+        Score::new(Some(self.pr_number), scorables)
     }
 }
 

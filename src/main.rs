@@ -228,9 +228,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let individual_prs_score: Vec<Score> =
                 repo_analysis.iter().map(|pr_data| pr_data.get_score()).collect::<Vec<Score>>();
 
-            let saved_file_path =
-                TemplateBuilder::from(individual_prs_score, repo_analysis.get_score())
-                    .build_to_temp_file()?;
+            let saved_file_path = TemplateBuilder::from(
+                owner,
+                repository,
+                individual_prs_score,
+                repo_analysis.get_score(),
+            )
+            .build_to_temp_file()?;
 
             open::that(saved_file_path);
         }

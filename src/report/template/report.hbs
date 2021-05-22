@@ -19,6 +19,10 @@
 
     <!-- PRolice data -->
     <!-- https://stackoverflow.com/a/9320664 -->
+    <script type="application/javascript" id="metadata">
+        const owner = "{{ owner }}";
+        const repository = "{{ repository }}";
+    </script>
     <script type="application/json" id="data">
         {{{ data }}}
     </script>
@@ -32,7 +36,7 @@
 </head>
 <body>
 
-<h1>PRolice Report - </h1>
+<h1>PRolice Report - {{ owner }}/{{ repository }}</h1>
 
 <div class="container-fluid">
     <p id="demo">A Paragraph</p>

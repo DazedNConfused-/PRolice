@@ -15,6 +15,8 @@ use crate::scoring::score::Score;
 use crate::{nested, prolice_metadata};
 
 pub struct TemplateBuilder {
+    owner: String,
+    repository: String,
     template_html: &'static str,
     template_data: TemplateData,
 }
@@ -37,7 +39,9 @@ impl TemplateData {
 
 impl TemplateBuilder {
     /// Initializes a [`TemplateBuilder`] with the provided data structures.
-    pub fn from(individual_prs_score: Vec<Score>, global_score: Score) -> Self {
+    pub fn from(
+        owner: &str, repository: &str, individual_prs_score: Vec<Score>, global_score: Score,
+    ) -> Self {
         let template_html = include_str!("template/report.hbs");
         let template_data = TemplateData {
             individual_prs_score,
@@ -45,6 +49,8 @@ impl TemplateBuilder {
         };
 
         TemplateBuilder {
+            owner: owner.to_string(),
+            repository: repository.to_string(),
             template_html,
             template_data,
         }
@@ -56,6 +62,8 @@ impl TemplateBuilder {
         let report_template_name = "report";
 
         // initialize report's inner fields ---
+        let owner_name = "owner";
+        let repository_name = "repository";
         let template_field_data = "data";
 
         // build report ---
@@ -63,7 +71,9 @@ impl TemplateBuilder {
         handlebars.set_strict_mode(true);
         handlebars.register_template_string(report_template_name, self.template_html).unwrap();
 
-        let mut template_data = HashMap::new();
+        let mut template_data: HashMap<&str, String> = HashMap::new();
+        template_data.insert(owner_name, self.owner.to_string());
+        template_data.insert(repository_name, self.repository.to_string());
         template_data.insert(template_field_data, String::from(&self.template_data.to_json()));
 
         handlebars.render(report_template_name, &template_data).map_err(|e| {

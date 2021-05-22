@@ -189,7 +189,7 @@ impl Scorable for Vec<&PullRequestData> {
             }
         }
 
-        Score::new(scorables)
+        Score::new(None, scorables)
     }
 }
 

@@ -148,12 +148,14 @@ impl ScoreType {
 /// A collection of [`ScoreType`]s, the "end-product" of an analysis.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Score {
+    pr_number: Option<u64>,
     score: Vec<ScoreType>,
 }
 
 impl Score {
-    pub fn new(score: Vec<ScoreType>) -> Self {
+    pub fn new(pr_number: Option<u64>, score: Vec<ScoreType>) -> Self {
         Score {
+            pr_number,
             score,
         }
     }
